@@ -9,7 +9,10 @@ scattersmooth <- function(x, y,
                           ylim = c(min(y), max(y)), 
                           show = TRUE,
                           save = FALSE,
-                          data =NULL)
+                          data = NULL,
+                          xlab = NULL,
+                          ylab = NULL,
+                          ...)
 {
 #----------------------------------------------
 smooth2d = function (H, lambda) {
@@ -86,14 +89,16 @@ smooth2d = function (H, lambda) {
     nmiss <- length(x) - sum(sel)
     # Create and smooth the unsmoothed histogram
      Hraw <- fillhist(xbin, ybin, nbin)
-  Hsmooth <- smooth2d(Hraw, lambda)     
+  Hsmooth <- smooth2d(Hraw, lambda) 
+    if (is.null(xlab)) xlab <-   deparse(substitute(x))
+    if (is.null(ylab)) ylab <-   deparse(substitute(y))
     if (ticks == FALSE) par(xaxt = 'n', yaxt = 'n')
     if (show) 
     {
       # Plot coloured image
       # cols = sequential_hcl(100)
       cols = heat_hcl(100)
-      image(x = xgrid, y = ygrid, z = -Hsmooth, xlab = "", ylab = "", 
+      image(x = xgrid, y = ygrid, z = -Hsmooth, xlab = xlab, ylab = ylab, 
             col = cols)
       # Plot selection of dots
       if (ndot > 0) 

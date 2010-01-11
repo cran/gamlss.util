@@ -9,10 +9,11 @@ Two dimensional Smooth scatter plots
 The function produced two dimensional smooth scatter plots. The method used is described   in Eilers and Goeman (2004).
 }
 \usage{
-scattersmooth(x, y, nbin = 100, lambda = 1, ndot = 500, 
-              csize = 0.3, ticks = TRUE, xlim = c(min(x), max(x)), 
-              ylim = c(min(y), max(y)), show = TRUE, 
-              save = FALSE, data = NULL)
+scattersmooth(x, y, nbin = 100, lambda = 1, ndot = 500,
+              csize = 0.3, ticks = TRUE, xlim = c(min(x), 
+              max(x)), ylim = c(min(y), max(y)), show = TRUE, 
+              save = FALSE, data = NULL, xlab = NULL, 
+              ylab = NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -31,27 +32,16 @@ scattersmooth(x, y, nbin = 100, lambda = 1, ndot = 500,
   \item{ndot}{
 how many data points to show
 }
-  \item{csize}{
-     the size of the data points 
-}
-  \item{ticks}{
-whether ticks in the x and y axis appear in the plot
-}
-  \item{xlim}{
-the x limit  
-}
-  \item{ylim}{
-the y limit
-}
-  \item{show}{
-whether to show the graph or not
-}
-  \item{save}{
-whether to save the output as a  list or not 
-}
-  \item{data}{
-the data file \code{data} 
-}
+  \item{csize}{the size of the data points}
+  \item{ticks}{whether ticks in the x and y axis appear in the plot}
+  \item{xlim}{the x limit}
+  \item{ylim}{the y limit}
+  \item{show}{whether to show the graph or not}
+  \item{save}{whether to save the output as a  list or not }
+  \item{data}{the data file \code{data}} 
+  \item{xlab}{the x label as character string}
+  \item{ylab}{the y label as character string}
+  \item{\dots}{for extra arguments}
 }
 \details{
 The function is similar to the function  \code{smoothScatter()} in \pkg{graphics} but it used penelized bin smoother as
