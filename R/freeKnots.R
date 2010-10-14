@@ -34,11 +34,15 @@ ls.wr <- function(y, X, w)
              X <-cbind(X1,X2) 
              w <- if (is.null(w)) rep(1, lx)
                    else rep(w, length = lx)
-           fit <- ls.wr(y,X,w)
-            # or  fit1<-lm.wfit(X,y,w) 
-          out <- list(fitted.values=fit$fv, residuals=y-fit$fv, df=fit$df, rss=fit$rss, knots=kn,
-                      fixed=fixed, breakPoints=knots, coef=fit$coefficients, degree=degree, 
-                      y=y, x=x, w=w) #, X=X 
+           #fit <- ls.wr(y,X,w)
+            # or  
+           fit <- lm.wfit(X,y,w) 
+          out  <- list(fitted.values=fitted(fit), residuals=resid(fit), df=fit$rank, rss=sum(resid(fit)^2), knots=kn,
+                        coef=fit$coefficients,  
+                        fixed=fixed, breakPoints=knots,  degree=degree, 
+                        y=y, x=x, w=w)
+          #out <- list(fitted.values=fit$fv,       residuals=y-fit$fv,  df=fit$df,   rss=fit$rss,         knots=kn,
+                       #, X=X 
    class(out) <- "FixBreakPointsReg"
          out
 }
@@ -110,7 +114,7 @@ warning(paste("There is a discrepancy  between the original prediction and the r
 fitFreeKnots <- function(x,y,w = NULL, knots=NULL, degree=3, fixed = NULL, trace = 0,...)
 {
 #------------------------------------------------------------------
-    penalty.opt <- function(kn, x, y, w, k, fixed = NULL, degree, ...) 
+    penalty.opt <<- function(kn, x, y, w, k, fixed = NULL, degree, ...) 
         {
        
        # kn <- sort(c(kn, fixed))
