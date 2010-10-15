@@ -26,7 +26,7 @@ ls.wr <- function(y, X, w)
            if (is.null(knots)) warning("No knots (break points) are declared")   
              kn <-  sort(c(xmin, xmax, fixed, knots)) 
               # splineDesign(knots, x, ord = 4, derivs, outer.ok = FALSE)
-             X2 <- splineDesign(knots=kn, x, ord= degree + 1, derivs=0 * x, outer=T)#
+             X2 <- splineDesign(knots=kn, x, ord= degree + 1, derivs=0 * x, outer.ok=TRUE)#
                    #bbase(x=x, xl=xmin, xr=xmax, knots=knots, deg=degree) # the problem here is the difference between break points
              form<- switch(as.character(degree), "0"=~1, "1"=~x, "2"=~x+I(x^2), "3"=~x+I(x^2)+I(x^3), 
                            "4"=~x+I(x^2)+I(x^3)+I(x^4), "5"=~x+I(x^2)+I(x^3)+I(x^4)+I(x^5)) 
@@ -88,7 +88,7 @@ if (is.null(newdata))  #
 # value of the degree of the polynomial fitted
 if (old.x.range)
  {
-   X2 <- splineDesign(knots=object$knots, x, ord= object$degree + 1, derivs=0 * x, outer=T)#
+   X2 <- splineDesign(knots=object$knots, x, ord= object$degree + 1, derivs=0 * x, outer.ok=TRUE)#
  }
  else
  {
@@ -97,7 +97,7 @@ if (old.x.range)
  xmax <- xr + 0.01 * (xr - xl)
  xmin <- xl - 0.01 * (xr - xl)
    kn <- sort(c(xmin, xmax, object$fixed, knots(object))) 
-   X2 <- splineDesign(knots=kn, x, ord= object$degree + 1, derivs=0 * x, outer=T)#
+   X2 <- splineDesign(knots=kn, x, ord= object$degree + 1, derivs=0 * x, outer.ok=TRUE)#
 }   
  form <- switch(as.character(object$degree), "0"=~1, "1"=~x, "2"=~x+I(x^2), "3"=~x+I(x^2)+I(x^3), 
                            "4"=~x+I(x^2)+I(x^3)+I(x^4), "5"=~x+I(x^2)+I(x^3)+I(x^4)+I(x^5)) 
@@ -114,7 +114,7 @@ warning(paste("There is a discrepancy  between the original prediction and the r
 fitFreeKnots <- function(x,y,w = NULL, knots=NULL, degree=3, fixed = NULL, trace = 0,...)
 {
 #------------------------------------------------------------------
-    penalty.opt <<- function(kn, x, y, w, k, fixed = NULL, degree, ...) 
+    penalty.opt <- function(kn, x, y, w, k, fixed = NULL, degree, ...) 
         {
        
        # kn <- sort(c(kn, fixed))
@@ -131,12 +131,12 @@ fitFreeKnots <- function(x,y,w = NULL, knots=NULL, degree=3, fixed = NULL, trace
      xmax <- max(x)
     #    w <- if (is.null(w))  rep(1, lx)
     #        else rep(w, length = lx)
-       eps <- 5e-04
-     shift <- .Machine$double.eps^0.25
+      eps <- 5e-04
+    shift <- .Machine$double.eps^0.25
         g <- length(knots)
     # initial fit
       sp0 <- fitFixBP(x=x, y=y, w=w, knots = knots, degree=degree, fixed = fixed)
-      sigma0 <-sp0$rss
+   sigma0 <- sp0$rss
         lambda <- if (length(knots) > 1) 
         {
             optim(knots, penalty.opt, #if (is.null(fixed)) penalty.gr, 
