@@ -274,15 +274,13 @@ plot.penLS <- function(x, ...)
          frame.plot = TRUE, 
          col="black", 
          lwd=0.4 ) #col="deepskyblue4", col="darkgreen", 
-         rug(residx, col="red", points(par(col="blue4")))
- 
+         rug(residx, col="red")
     qqnorm(residx, main = "Normal Q-Q Plot",
             xlab = "Theoretical Quantiles",
             ylab = "Sample Quantiles", 
             plot.it = TRUE, 
             frame.plot = TRUE, 
-            col="darkgreen", 
-            points(par(col="darkgreen")))
+            col="darkgreen") 
      lines(residx, residx, col="red" , lwd=.4, cex=.4 )
 par(op)
 }

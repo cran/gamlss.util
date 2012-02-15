@@ -1,0 +1,13 @@
+7506408e9425a0d71f820f6c413820e0 *DESCRIPTION
+e0ae278e16a6782ce95cabe23ff5bfd8 *LICENSE
+c67195a130766d7169cc44552b4ce8e8 *NAMESPACE
+a9c7a285f287b6793aca54c40f71fab6 *R/freeKnots-14-07-10.R
+d0baee9a0deba0e71e100e3caafd8a55 *R/movMean.R
+8ec59176b19370bfeac787f47768bead *R/penLS.R
+572eb493e6cc057a29a261972b3d103d *R/penReg.R
+6564a2d5dfdfd5cf2031dcf50eebac7d *R/scattersmooth.r
+f99381b215d666df8f601e3a0d5375f4 *man/Locmean.Rd
+2888f2764a7e8a495deb2e551cadcdcd *man/fitFixBP.Rd
+b5139671cdde979ac9e33d76a6e56bf5 *man/penLS.Rd
+b43ee2cb2935310e1c36a52b06c21195 *man/penReg.Rd
+8e7b83a3df3fbf6f8405414f34b30d35 *man/scattersmooth.Rd

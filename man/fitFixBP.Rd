@@ -2,25 +2,27 @@
 
 \alias{fitFixBP}
 \alias{fitFreeKnots}
-\title{Functions to Fit Univariate Break Point Models  }
+\title{Functions to Fit Univariate Break Point Regression Models}
 \description{
-There are two functions here. The functions \code{fitFixBP} allows the fit a univariate regression using 
-piecewise polynomials with known break points while the function \code{fitFreeKnots} estimates the break points.  
+There are two main functions here. The functions \code{fitFixBP} allows the fit a univariate regression using 
+piecewise polynomials with "known" break points while the function \code{fitFreeKnots} estimates the break points.  
 }
 \usage{
-fitFixBP(x, y, w = NULL, knots = NULL, degree = 3, fixed = NULL, ...)
-fitFreeKnots(x, y, w = NULL, knots = NULL, degree = 3, fixed = NULL, 
-             trace = 0, ...)
+fitFixBP(x, y, w = NULL, knots = NULL, data = NULL, degree = 3, 
+             fixed = NULL, base=c("trun","Bbase"), ...)
+fitFreeKnots(x, y, w = NULL, knots = NULL, degree = 3, fixed =
+                 NULL, trace = 0, data = NULL, base=c("trun","Bbase"), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-the x variable}
-  \item{y}{the  response variable}
+  \item{x}{the x variable (explanatory)}
+  \item{y}{the response variable}
   \item{w}{the prior weights}
-  \item{knots}{the position of the interior knots for  \code{fitFixBP} or starting values for  \code{fitFreeKnots}}
+  \item{knots}{the position of the interior knots for  \code{fitFixBP} or starting values for \code{fitFreeKnots}}
+  \item{data}{the data frame}
   \item{degree}{the degree if the piecewise  polynomials}
   \item{fixed}{this is to be able to fit fixed break points}
+  \item{base}{The basis for the piecewise polynomials, \code{turn} for truncated (default) and \code{Bbase} for B-base piecewise polynomials   }
   \item{trace}{controlling the trace of of \code{optim()} }
   \item{\dots}{for extra arguments}
   }
@@ -62,17 +64,20 @@ Accompanying documentation in the current GAMLSS  help files, (see also  \url{ht
 Mikis Stasinopoulos \email{d.stasinopoulos@londonmet.ac.uk}
 }
 \note{
-In predicting from a fitted \code{FixBreakPointsReg} or \code{FreeBreakPointsReg} model there are two choices 
-to be made:  
-The first is to create new end-points for all the x-variables including the \code{newdata}. Note that in this case 
-the range of x  could be bigger that the original one if \code{newdata} has values outside the original x range.  
-The second is to have the old data end-points which were determine with the original range of x.
-The second choice is implemented as a default in the \code{predict} method for \code{FixBreakPointsReg} and
-\code{FreeBreakPointsReg} objects with  the argument \code{old.x.range=TRUE}. Values outside the original x-range 
-in this case will be the determined by the global polynomial fitted to data.  
-If the argument of predict is set to  \code{old.x.range=FALSE} the prediction could be possible 
-better outside the x range but would not coincide with the original predictions i.e. fitted(model)
-since the Beta-spline base has changed.
+The prediction function in piecewise polynomials using the B-spline basis is tricky because by adding the newdata for x to the current one the B-basis function for the piecewise polynomials changes.  This does not seems to be the case with the truncated basis, that is, when the option \code{base="turn"} is used (see the example below).
+
+If the newdata are outside the range of the old x then there could a considerable discrepancies between the all fitted values and the predicted ones if the option \code{base="Bbase"} is used. The prediction function for the objects \code{FixBreakPointsReg} or \code{FreeBreakPointsReg}
+has the option \code{old.x.range=TRUE} which allow the user two choices:  
+
+The first is to use the old end-points for the creation of the new B-basis which were determine from the original range of x. This choice is implemented as a default in the \code{predict} method for \code{FixBreakPointsReg} and \code{FreeBreakPointsReg} objects with the argument \code{old.x.range=TRUE}. 
+
+The second  is to create new end-points from the new and old data  x values. In this case 
+the range of x  will be bigger that the original one if the \code{newdata} has values outside the original x range.  
+In this case (\code{old.x.range=FALSE}) the prediction could be possible  better outside the x range but would not coincide with the original predictions i.e. fitted(model)
+since basis have changed. 
+
+
+
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -86,16 +91,30 @@ knot <- 5
  mu <- ifelse(x<=knot,5+0.5*x,5+0.5*x+(x-knot))
   y <- rNO(201, mu=mu, sigma=.5)
 # plot the data
- plot(y~x, xlim=c(-1,13), ylim=c(3,17))
+ plot(y~x, xlim=c(-1,13), ylim=c(3,18))
+
 # fit model using fixed break points
  m1 <- fitFixBP(x, y, knots=5, degree=1)
 knots(m1)
 lines(fitted(m1)~x, col="red")
+# estimated the knot
 m2 <- fitFreeKnots(x, y, knots=5, degree=1)
 knots(m2)
+summary(m2)
+# now predicting 
+plot(y~x, xlim=c(-5,13), ylim=c(3,18))
 lines(fitted(m2)~x, col="green", lwd=3)
-points(0:13,predict(m2, newdata=0:13), col="red",pch = 21, bg="blue")
-points(0:13,predict(m2, newdata=0:13, old.x.range=FALSE), col="red",pch = 21, bg="grey")
+points(-2:13,predict(m2, newdata=-2:13), col="red",pch = 21, bg="blue")
+points(-2:13,predict(m2, newdata=-2:13, old.x.range=FALSE), col="red",pch = 21, bg="grey")
+# fit different basis 
+m21 <- fitFreeKnots(x, y, knots=5, degree=1, base="Bbase")
+deviance(m2) 
+deviance(m21) # should be identical
+# predicting with m21
+ plot(y~x, xlim=c(-5,13), ylim=c(3,18))
+lines(fitted(m21)~x, col="green", lwd=3)
+points(-2:13,predict(m21, newdata=-2:13), col="red",pch = 21, bg="blue")
+points(-2:13,predict(m21, newdata=-2:13, old.x.range=FALSE), col="red",pch = 21, bg="grey")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
