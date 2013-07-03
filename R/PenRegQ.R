@@ -134,8 +134,8 @@ penRegQ <- function(y, x,
             b <- D %*% as.vector(beta)
             #browser()
            D3 <- determinant(exp(-par[1])*XWX+exp(-par[2])*G)$modulus
-            f <- -(N/2)*log(2*pi*exp(par[1]))-              #1
-                 .5*determinant(diag(1/weights))$modulus-   #2 this do not depends on parameters
+            f <- -(N/2)*log(2*pi*exp(par[1]))+              #1
+                 .5*sum(log(weights))-   #2 this do not depends on parameters
                  sum(weights*(y-fv)^2)/(2*exp(par[1]))+     #3
                   (r/2)*log(2*pi)-                          #4 
                  ((r-order)/2)*log(2*pi*exp(par[2]))-       #5
@@ -151,7 +151,8 @@ penRegQ <- function(y, x,
             if (out$convergence > 0) # I took this from Ripley
         warning("possible convergence problem: optim gave code=", 
                 out$convergence, " ", out$message)
-    out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian
+    out$hessian <- optimHess(out$par, Qf)  
+    #out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian
      value.of.Q <- out$objective
                          },
                  "optim"={
@@ -159,7 +160,8 @@ penRegQ <- function(y, x,
       if (out$convergence > 0) # I took this from Ripley
         warning("possible convergence problem: optim gave code=", 
                 out$convergence, " ", out$message)
-    out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian
+    out$hessian <- optimHess(out$par, Qf)              
+    #out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian
                   # geting the hessian using nlme    fdHess(out$par, Qf)
             value.of.Q <- out$value
                            },
@@ -168,7 +170,8 @@ penRegQ <- function(y, x,
                     B <- matrix(c(-16,-16, 16, 16), ncol=2)
                     # spead is INCREASED  by reducing  pop.size and increasing BFGSburnin
               out <- genoud( Qf, nvars=2, max=FALSE, pop.size=30,  Domains=B, boundary.enforcement=2, gradient.check=TRUE,BFGSburnin=10, max.generations=30, print.level=0)#  hessian=TRUE
-      out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian     
+      out$hessian <- optimHess(out$par, Qf)  
+     # out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian     
             # out <- genoud( Qf, nvars=2, max=FALSE, pop.size=10,  Domains=B, boundary.enforcement=2, hessian=TRUE, BFGSburnin=50, P1=0, P2=50, P3=50, P4=0, P5=0, P6=0, P7=0, P8=0, P9=0)
             #out <- genoud( Qf, nvars=2, max=FALSE, pop.size=5000, Domains=B, boundary.enforcement=2, hessian=TRUE)
                     value.of.Q <- out$value   

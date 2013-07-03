@@ -4,7 +4,8 @@ export(scattersmooth,
         penReg, penRegQ, 
         pbq, gamlss.pbq, 
         penLS,
-        garmaFit, lagPlot, centiles.ts)
+        garmaFit, lagPlot, centiles.ts, flexDist,
+        plotSimpleGamlss)
 
 
 

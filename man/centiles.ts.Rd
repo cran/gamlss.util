@@ -76,7 +76,8 @@ dax <- EuStockMarkets[,"DAX"]
 rdax <- diff(dax,1)
   w1 <- wlag(rdax,30)
 # garch type 
-f1<- gamlss(rdax~ la(rdax, lags=30, from.lag=1), sigma.fo=~la(rdax^2, lags=30, from.lag=1), weights=w1, bf.cyc=10, family=TF)
+f1<- gamlss(rdax~ la(rdax, lags=30, from.lag=1), sigma.fo=~la(rdax^2, 
+            lags=30, from.lag=1), weights=w1, bf.cyc=10, family=TF)
 tiR <- as.numeric(time(rdax))
 centiles.ts(f1, xvar=tiR, cent=c(2.5,50,97.5), col.cent="black")
 }

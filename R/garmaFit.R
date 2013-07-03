@@ -7,7 +7,7 @@
 # 
 # 1) Can generalised for more general ARMA model arma(p,q)? yes  OK
 # 2) for more general distributions yes OK
-# 3) needs se error for te initial parametets so we can get lower and upper bounds: maybe we dont need this set to -Inf nad Inf
+# 3) needs se error for the initial parametets so we can get lower and upper bounds: maybe we dont need this set to -Inf and Inf
 # 4) residuals() OK
 # 5) test different link functions for g2(y*) 
 # 6) fix to allows 3 and 4 parameter distributions
@@ -28,18 +28,21 @@ require(gamlss)
 #---------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------
 garmaFit <- function(formula = formula(data), 
-		                   order = c(0,0),
-		                 weights = NULL,
-					              data = sys.parent(), 
-					            family = NO(),  ##  declaring the family ##
-					             alpha = 0.1,
-				           phi.start = NULL,
-				         theta.start = NULL, 
-					              tail = max(order),
-					           control = list())
+		               order = c(0,0),
+		             weights = NULL,
+	                    data = sys.parent(),
+	                  family = NO(),  ##  declaring the family ##
+		               alpha = 0.1,
+				   phi.start = NULL,
+				 theta.start = NULL, 
+			            tail = max(order),
+		           control = list())
 {
 #---------------------------------------------------
 # local functions
+# i)   rqres
+# ii)  hessian not needed anymore 
+# iii) garmaLL
 #--------------------------------------------------------------------------------------
 # this is to replicate rqres within gamlss enviroment DS Friday, March 31, 2006 at 10:30
 # it is used as in gamlss()
@@ -76,6 +79,7 @@ garmaFit <- function(formula = formula(data),
 		}
 		Hessian
 	}
+##---------	
 #----------
 	garmaLL <- function(parm,  save=FALSE) 
 	{	
@@ -172,19 +176,19 @@ garmaFit <- function(formula = formula(data),
 ##  order=c(>0,>0)   case 3
       if (order[1]<=0&&order[2]<=0)  case <- 0 
       if (order[1]> 0&&order[2]<=0)  case <- 1 
-	    if (order[1]<=0&&order[2] >0)  case <- 2	
-	    if (order[1]> 0&&order[2] >0)  case <- 3
+	  if (order[1]<=0&&order[2] >0)  case <- 2	
+	  if (order[1]> 0&&order[2] >0)  case <- 3
 ## starting values for beta
 ## fitting a gamlss model
-## possibly with weights ?????
+## possibly with weights ????? YES but we need length(y) here 
      m0 <- gamlss(formula, family=family, data=data, trace=FALSE) #with(data, gamlss(y ~ x2 + x3 + x4 + x5, family=family,  trace=FALSE)
      cat("deviance of linear model= ", deviance(m0),"\n")
      if (case==0) return(m0) # stop if case 0
 # get the initial betas
        beta <- coef(m0)
-	   # here we need the se so we can create lower and upper bounds???
-	#se.coef <-  c(0.09662, 0.13091, 0.13968, 0.13302, 0.13437) 
-	#   se.coef <- vcov(m0, "se") NEEDS ATTENTION
+   # here we need the se of  coef so we can create lower and upper bounds???
+   #se.coef <-  c(0.09662, 0.13091, 0.13968, 0.13302, 0.13437) 
+   #se.coef <- vcov(m0, "se") NEEDS ATTENTION
 	 l.beta <- length(beta)
 	#beta.se <- [1:l.beta]
           y <- m0$y # 
@@ -214,7 +218,7 @@ garmaFit <- function(formula = formula(data),
 	          if(any(w < 0)) stop("negative weights not allowed") # 
  w[1:mtail] <- 0	# weight out the tail  
 # get the initial values if are not set by the user
-##  you will need  something like this for the general family probable you need for nu and tau only##
+##  you will need  something like this for the general family probably you need for nu and tau only##
 	if ("mu"%in%names(fam$parameters))
 	{
 		params <- c(beta = beta) 
