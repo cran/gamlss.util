@@ -1,4 +1,4 @@
-#library(colorspace)
+#library(colorspace) is take off so it can go to gamlss
 scattersmooth <- function(x, y, 
                           nbin = 100, 
                         lambda = 1, 
@@ -12,9 +12,12 @@ scattersmooth <- function(x, y,
                           data = NULL,
                           xlab = NULL,
                           ylab = NULL,
+                          cols = heat.colors(10:200),
+                    col.points = "blue",
                           ...)
 {
-#----------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 smooth2d = function (H, lambda) {
     # 2-D exponential smoother
     if (length(lambda) == 1) lambda = c(lambda, lambda)
@@ -33,7 +36,7 @@ smooth2d = function (H, lambda) {
       H <- t(solve(Qy, t(solve(Qx, H))))
     return(H)
 }
-#----------------------------------------------
+#-------------------------------------------------------------------------------
     fillhist <- function(xb, yb, nb)
     {
         H <- matrix(rep(0, prod(nb)), nb[1], nb[2])
@@ -43,15 +46,21 @@ smooth2d = function (H, lambda) {
         }   
         H
     }
-#----------------------------------------------
+#-------------------------------------------------------------------------------
+# main function starts here
 # check correct input
-    if (!is.null(data)) 
-           {
-           YYY <- paste(paste(deparse(substitute(data)),"$", sep=""),deparse(substitute(y)), sep="" )
-             y <- eval(parse(text=YYY))
-           XXX <- paste(paste(deparse(substitute(data)),"$", sep=""),deparse(substitute(x)), sep="" )
-             x <- eval(parse(text=XXX))
-           }
+ylab <- deparse(substitute(y))
+xlab <- deparse(substitute(x))
+y <- if (!is.null(data)) get(deparse(substitute(y)), envir=as.environment(data)) else y
+x <- if (!is.null(data)) get(deparse(substitute(x)), envir=as.environment(data)) else x
+# ## --------------
+#     if (!is.null(data)) 
+#            {
+#            YYY <- paste(paste(deparse(substitute(data)),"$", sep=""),deparse(substitute(y)), sep="" )
+#              y <- eval(parse(text=YYY))
+# #            XXX <- paste(paste(deparse(substitute(data)),"$", sep=""),deparse(substitute(x)), sep="" )
+#              x <- eval(parse(text=XXX))
+#            }
     if (length(x) != length(y))
         stop("lengths of x and y do not match")
     if ( (length(x) < 2) | (length(y) < 2) )
@@ -95,9 +104,9 @@ smooth2d = function (H, lambda) {
     if (ticks == FALSE) par(xaxt = 'n', yaxt = 'n')
     if (show) 
     {
-      # Plot coloured image
-      # cols = sequential_hcl(100)
-      cols = heat_hcl(100)
+     # cols =  #gray(0:n.col/n.col) 
+              #heat_hcl(100:200)
+      #          heat.colors(10:200)
       image(x = xgrid, y = ygrid, z = -Hsmooth, xlab = xlab, ylab = ylab, 
             col = cols)
       # Plot selection of dots
@@ -105,7 +114,7 @@ smooth2d = function (H, lambda) {
       {
         ndot <- min(m, ndot)
         sel <- sort.list(rnorm(m))[1:ndot]
-        points(x[sel], y[sel], cex = csize, col = "blue", pch = 15)
+        points(x[sel], y[sel], cex = csize, col = col.points, pch = 15)
       }
       box()   
     }

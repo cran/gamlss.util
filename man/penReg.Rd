@@ -18,7 +18,7 @@ penReg(y, x, weights = rep(1, length(y)), df = NULL, lambda = NULL, start = 10,
       method = c("ML", "ML-1", "GAIC", "GCV", "EM"), k = 2, ...)
 penRegQ(y, x, weights = rep(1, length(y)), order = 2, start = 10, 
        plot = FALSE, lambda = NULL, inter = 20, degree = 3, 
-       optim.proc = c("nlminb", "optim", "genoud"), 
+       optim.proc = c("nlminb", "optim"), 
        optim.control = NULL)        
 pbq(x, control = pbq.control(...), ...)
 gamlss.pbq(x, y, w, xeval = NULL, ...)
@@ -38,7 +38,7 @@ gamlss.pbq(x, y, w, xeval = NULL, ...)
   \item{plot}{whether to plot the data and  the fitted function}
   \item{method}{The method used in the (local) performance iterations. Available methods are "ML", "ML-1", "EM", "GAIC" and "GCV"}
   \item{k}{the penalty used in "GAIC" and "GCV"}
-  \item{optim.proc}{which function to be use to optimise the Q-function, options are \code{c("nlminb", "optim", "genoud")}}
+  \item{optim.proc}{which function to be use to optimise the Q-function, options are \code{c("nlminb", "optim")}}
  \item{optim.control}{options for the optimisation procedures}
   \item{control}{arguments for the fitting function. It takes one two: i) \code{order} the order of the B-spline and \code{plot} whether to plot the data and fit.}
   \item{xeval}{this is use for prediction}
@@ -67,9 +67,6 @@ Stasinopoulos D. M. Rigby R.A. (2007) Generalized additive models for location s
 }
 \author{
 Mikis Stasinopoulos \email{d.stasinopoulos@londonmet.ac.uk}, Bob Rigby \email{r.rigby@londonmet.ac.uk } and Paul Eilers
-}
-\seealso{
-\code{\link{penLS}}
 }
 
 \examples{
@@ -104,24 +101,15 @@ cbind(g3$aic, m3$aic)
 cbind(fitted(g3), fitted(m3))[1:10,]
 # almost identical
 #------------------
-# estimate lambda using EM
-g4<-gamlss(y~pb(x, method="EM"))
-m4<-penReg(y,x, method="EM") 
+#  estimate lambda using  GAIC(#=3)
+g4<-gamlss(y~pb(x, method="GAIC", k=3))
+m4<-penReg(y,x, method="GAIC", k=3) 
 cbind(g4$mu.df, m4$edf )
 cbind(g4$mu.lambda, m4$lambda)
 cbind(g4$aic, m4$aic)
+cbind(g4$mu.df, m4$df)
+cbind(g4$mu.lambda, m4$lambda)
 cbind(fitted(g4), fitted(m4))[1:10,]
-# almost identical
-#------------------
-#  estimate lambda using  GAIC(#=3)
-g5<-gamlss(y~pb(x, method="GAIC", k=3))
-m5<-penReg(y,x, method="GAIC", k=3) 
-cbind(g5$mu.df, m5$edf )
-cbind(g5$mu.lambda, m5$lambda)
-cbind(g5$aic, m5$aic)
-cbind(g5$mu.df, m5$df)
-cbind(g5$mu.lambda, m5$lambda)
-cbind(fitted(g5), fitted(m5))[1:10,]
 
 #-------------------
 plot(y~x)

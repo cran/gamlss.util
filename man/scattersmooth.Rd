@@ -13,7 +13,8 @@ scattersmooth(x, y, nbin = 100, lambda = 1, ndot = 500,
               csize = 0.3, ticks = TRUE, xlim = c(min(x), 
               max(x)), ylim = c(min(y), max(y)), show = TRUE, 
               save = FALSE, data = NULL, xlab = NULL, 
-              ylab = NULL, ...)
+              ylab = NULL,  cols = heat.colors(10:200), 
+              col.points = "blue", ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -24,13 +25,13 @@ scattersmooth(x, y, nbin = 100, lambda = 1, ndot = 500,
   the y-variable 
 }
   \item{nbin}{
-  the number of bins required
+  the number of bins required for smoothing 
 }
   \item{lambda}{
   the smoothing  parameter
 }
   \item{ndot}{
-how many data points to show
+how many data points to show in the plot
 }
   \item{csize}{the size of the data points}
   \item{ticks}{whether ticks in the x and y axis appear in the plot}
@@ -41,6 +42,18 @@ how many data points to show
   \item{data}{the data file \code{data}} 
   \item{xlab}{the x label as character string}
   \item{ylab}{the y label as character string}
+  \item{cols}{for changing the color scheme, the defaul is 
+              \code{heat.colors(10:200)}. Other suggestions  are 
+              \code{gray(0:100/100)},
+              \code{heat.colors(101)},
+              \code{rainbow(100:200)},
+              \code{terrain.colors(101)},
+              \code{topo.colors(101)},
+              \code{cm.colors(101)}. Note that if you have the package 
+              \pkg{colorspace} in R you can used
+              \code{heat_hcl(100)} which was the default before.
+              }
+   \item{col.points}{the colours of the points}
   \item{\dots}{for extra arguments}
 }
 \details{
@@ -86,5 +99,14 @@ rho <- rchisq(m, df = 6)
 x <- cos(phi) * rho
 y <- sin(phi) * rho
 H <- scattersmooth(x, y)
+H1 <- scattersmooth(x, y, cols=rainbow(100:200)) 
+#  If you have the package colorspace use instead 
+# library(colorspace)
+# H <- scattersmooth(x, y, cols=heat_hcl(100))
+# H1 <- scattersmooth(x, y, cols=rainbow_hcl(100))
+data(db)
+scattersmooth(age, head,  data=db, cols=terrain.colors(101), ndot=2000, lambda=1)
+# or if you have colorspace
+#scattersmooth(age, head,  data=db, cols=terrain_hcl(100), ndot=2000, lambda=1)
 }
 \keyword{regression}

@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Plotting a simple GAMLSS model for demonstration purpose}
 \description{
-This is a facility to plot a simple GAMLSS model where only one explanatory variable exist in order to demonstrated how the distribution of the response changes according to values of the explanatory variable.   
+This is to plot a simple GAMLSS model where only one explanatory variable exist in order to demonstrated how the distribution of the response changes according to values of the explanatory variable.   
 }
 \usage{
 plotSimpleGamlss(y, x, model = NULL, formula = NULL, data = NULL, 

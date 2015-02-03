@@ -39,14 +39,14 @@ starting values for the AR parameters
 starting values for the MA part
 }
   \item{tail}{
-how many observation from the tall of the response variable should be supressed
+how many observation from the tall of the response variable should be suppressed
 }
   \item{control}{
 control for \code{optim()}  or \code{nlminb()} function use for optimisation.
 }
 }
 \details{
-The model is described in  Benjamin et al. (2003). The implementation here is more general that it allows all the \code{gamlss.family} distributions to be fitted thather than only for the exponential family which was described in the original formulation.
+The model is described in  Benjamin et al. (2003). The implementation here is more general that it allows all the \code{gamlss.family} distributions to be fitted rather than only for the exponential family which was described in the original paper. Note that in this formulation only the mu can be modelled as ARMA.
 }
 \value{
 It returns a fitted \code{garma} model.
@@ -58,7 +58,7 @@ Rigby, R. A. and  Stasinopoulos D. M. (2005). Generalized additive models for lo
 \emph{Appl. Statist.}, \bold{54}, part 3, pp 507-554.
 
 Stasinopoulos D. M., Rigby R.A. and Akantziliotou C. (2006) Instructions on how to use the GAMLSS package in R.
-Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.com/}). 
+Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.org/}). 
 
 Stasinopoulos D. M. Rigby R.A. (2007) Generalized additive models for location scale and shape (GAMLSS) in R.
 \emph{Journal of Statistical Software}, Vol. \bold{23}, Issue 7, Dec 2007, \url{http://www.jstatsoft.org/v23/i07}.

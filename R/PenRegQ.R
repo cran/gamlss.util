@@ -14,7 +14,7 @@ penRegQ <- function(y, x,
                  lambda = NULL,  
                   inter = 20, 
                  degree = 3,
-             optim.proc = c("nlminb", "optim",  "genoud"),
+             optim.proc = c("nlminb", "optim"), # ,  "genoud"
           optim.control = NULL)                       
  {
 # ---------------------------------------------------
@@ -70,7 +70,6 @@ penRegQ <- function(y, x,
  #--------------------------------------------------
  #--------------------------------------------------
 # main function starts here
- require(gamlss)
          scall <- deparse(sys.call())
        optim.p <- match.arg(optim.proc)
         natrue <- FALSE 
@@ -146,7 +145,7 @@ penRegQ <- function(y, x,
      }
  #--------------------------------------------------------
  #--------------------------------------------------------
- switch(optim.p, "nlminb"={# this do not allow se's'
+ switch(optim.p, "nlminb" = { # this do not allow se's'
             out <- nlminb(start = params, objective = Qf, lower = c(-16, -16),  upper = c(16, 16), control=optim.control)
             if (out$convergence > 0) # I took this from Ripley
         warning("possible convergence problem: optim gave code=", 
@@ -165,19 +164,18 @@ penRegQ <- function(y, x,
                   # geting the hessian using nlme    fdHess(out$par, Qf)
             value.of.Q <- out$value
                            },
-                  "genoud"={
-                    require(rgenoud)
-                    B <- matrix(c(-16,-16, 16, 16), ncol=2)
-                    # spead is INCREASED  by reducing  pop.size and increasing BFGSburnin
-              out <- genoud( Qf, nvars=2, max=FALSE, pop.size=30,  Domains=B, boundary.enforcement=2, gradient.check=TRUE,BFGSburnin=10, max.generations=30, print.level=0)#  hessian=TRUE
-      out$hessian <- optimHess(out$par, Qf)  
-     # out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian     
-            # out <- genoud( Qf, nvars=2, max=FALSE, pop.size=10,  Domains=B, boundary.enforcement=2, hessian=TRUE, BFGSburnin=50, P1=0, P2=50, P3=50, P4=0, P5=0, P6=0, P7=0, P8=0, P9=0)
-            #out <- genoud( Qf, nvars=2, max=FALSE, pop.size=5000, Domains=B, boundary.enforcement=2, hessian=TRUE)
-                    value.of.Q <- out$value   
-                    })    
+#                  "genoud"={
+#                    B <- matrix(c(-16,-16, 16, 16), ncol=2)
+#                    # spead is INCREASED  by reducing  pop.size and increasing BFGSburnin
+#              out <- genoud( Qf, nvars=2, max=FALSE, pop.size=30,  Domains=B, boundary.enforcement=2, #gradient.check=TRUE,BFGSburnin=10, max.generations=30, print.level=0)#  hessian=TRUE
+#      out$hessian <- optimHess(out$par, Qf)  
+#     # out$hessian <- HessianPB(pars=out$par, fun=Qf)$Hessian     
+#            # out <- genoud( Qf, nvars=2, max=FALSE, pop.size=10,  Domains=B, boundary.enforcement=2, #hessian=TRUE, BFGSburnin=50, P1=0, P2=50, P3=50, P4=0, P5=0, P6=0, P7=0, P8=0, P9=0)
+#            #out <- genoud( Qf, nvars=2, max=FALSE, pop.size=5000, Domains=B, boundary.enforcement=2, #hessian=TRUE)
+#                    value.of.Q <- out$value   
+#                    }
+    )    
   #   out1<- optim(par= params,            fn = Qf, lower = c(1e-10, 1e-10),  upper = c(Inf, Inf),   method= "L-BFGS-B")
- #  library(rgenoud)
  #  B <- matrix(c(1e-10,1e-10, Inf, Inf), ncol=2)  
  # B <- matrix(c(0.001,0.001, 10000, 10000), ncol=2)
  #    genoud( Qf, nvars=2, max=FALSE, pop.size=3000, Domains=B)

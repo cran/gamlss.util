@@ -1,21 +1,21 @@
 # functions
-export(scattersmooth, 
-        Locmean, Locpoly, WLocmean, WLocpoly, 
+export(scattersmooth, plotSimpleGamlss,
         penReg, penRegQ, 
         pbq, gamlss.pbq, 
-        penLS,
-        garmaFit, lagPlot, centiles.ts, flexDist,
-        plotSimpleGamlss)
+        garmaFit, lagPlot, centiles.ts)
 
-
-
-
+#importFrom(colorspace)
+importFrom(gamlss, gamlss, .gamlss.bi.list, is.gamlss, predictAll)
+importFrom(gamlss.dist, as.gamlss.family, NO, dNO, qNO, pNO)
+import(zoo)
+#importFrom(spam)
+#importFrom(genoud)
 
 importFrom(stats, knots, coef, fitted, predict, residuals)
-importFrom(Matrix, t, solve, as.vector, diag)
+#importFrom(Matrix, t, solve, as.vector, diag)
 
-S3method(fitted, locW)
-S3method(residuals, locW)
+#S3method(fitted, locW)
+#S3method(residuals, locW)
 
 S3method(vcov, garma)
 S3method(print, garma)
@@ -37,9 +37,9 @@ S3method(print, penReg)
 S3method(summary, penReg)
 S3method(summary, penRegQ)
 
-S3method(fitted, penLS)
-S3method(residuals, penLS)
-S3method(coef, penLS)
-S3method(AIC, penLS)
-S3method(deviance, penLS)
-S3method(plot, penLS)
+#S3method(fitted, penLS)
+#S3method(residuals, penLS)
+#S3method(coef, penLS)
+#S3method(AIC, penLS)
+#S3method(deviance, penLS)
+#S3method(plot, penLS)

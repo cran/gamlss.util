@@ -1,5 +1,6 @@
 # functions for centile plots for time series data
 # last change MS Saturday, jan 24 2012
+# needs zoo check why?
 #------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------
 centiles.ts<-function (obj, 
@@ -25,7 +26,7 @@ centiles.ts<-function (obj,
             lwd.centiles = 1,  #Handling for line appearance 
                            ...)        
 {
-	require(zoo)
+#	require(zoo)
   # if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
    if(is.null(xvar)) stop(paste("The xvar argument is not specified", "\n", ""))
   # if(!obj$type=="Continuous") stop(paste("The centiles are working only with continuous distributions", "\n", ""))
@@ -125,146 +126,146 @@ if (save) { return(cbind(cent,per))}
 #------------------------------------------------------------------------------------------
 # centiles.split will not work with less than 4 parameter distribution ??????
 
-centiles.split<- function(obj, 
-                        xvar = NULL, 
-                 xcut.points = NULL, 
-                     n.inter = 4 , 
-                        cent = c(.4,2,10,25,50,75,90,98,99.6), 
-                      legend = FALSE, 
-                        main = NULL,
-                   main.gsub = "@",   
-                        ylab = "y",
-                        xlab = "x",
-                        ylim = NULL, # ms Friday, February 6, 2004 at 19:40
-                     overlap = 0, 
-                        save = TRUE,
-                        plot = TRUE,
-                        ...
-                        )
-{
-# function 1 -------------------------
-  check.overlap <- function(interval)
-  {
-    if (!is.matrix(interval) ) {stop(paste("The interval specified is not a matrix."))}
-    if (dim(interval)[2] !=2) 
-     {
-stop(paste("The interval specified is not a valid matrix.\nThe number of columns should be equal to 2."))
-     }
-    crows = dim(interval)[1]
-    for (i in 1:(crows-1))
-    {
-        #if (interval[i,2] != interval[i+1,1]) {interval[i+1,1]=interval[i,2]}
-        if (!(abs(interval[i,2]-interval[i+1,1])<0.0001)) {interval[i+1,1]=interval[i,2]}
-    }
-    return(interval)
-  }
-#------------------------------------------
-# function 2 
-  get.intervals <- function (xvar, xcut.points ) 
-{
-    if (!is.vector(xcut.points))  {stop(paste("The interval is not a vector."))}
-    if ( any((xcut.points < min(xvar)) | any(xcut.points > max(xvar))))
-        {stop(paste("The specified `xcut.points' are not within the range of the x: (", min(xvar),
-        " , ", max(xvar), ")"))}
-    int <- c(min(xvar), xcut.points, max(xvar))
-     ii <- 1:(length(int)-1)
-      r <- 2:length(int)
-     x1 <- int[ii]
-     xr <- int[r]
-     if (any(x1>xr)) {stop(paste("The interval is are not in a increasing order."))}
-    cbind(x1,xr)
-}
-#------------------------------------------
-# the main function starts here
-#------------------------------------------
-    if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
-    if(is.null(xvar)) 
-      { xvar <- seq(1,length(obj$y),1)
-        warning(paste("The xvar has been replace by an index 1:n", "\n", ""))  
-      }    # do we need this for centiles()            
-    if(is.null(xcut.points)) 
-      { # getting the intervals automatic
-      g.in <- co.intervals(xvar, number=n.inter, overlap=overlap )
-      if (overlap==0) g.in <- check.overlap(g.in) 
-      }                 
-    else
-      { # if xcut.points is set
-      g.in <- get.intervals(xvar, xcut.points ) 
-      }
-      howmany <- dim(g.in)[1]
-       fname <- obj$family[1]
-        qfun <- paste("q",fname,sep="")
-       Title <-vector(length = howmany)
-       for (i in 1:howmany)  Title[i] <- paste("(",paste(g.in[i,1],g.in[i,2], sep=", "), ")" )  
-       if (is.null(main)) main <- Title
-       else for (i in 1:howmany) main[i] <-gsub(main.gsub,Title[i],main[i])         
-             #  if (is.null(main)) 
-             #      {#rep(paste("Centile curves using", fname, sep=" "),howmany )
-             #       main<-vector(length = howmany)
-             #       for (i in 1:howmany)  main[i] <- paste("(",paste(g.in[i,1],g.in[i,2], sep=", "), ")" )
-             #      }               
-             #  else main #gsub(main.gsub,Title,main)    
-        if (length(main)!=howmany) rep(main, lenght=howmany) 
-       ncent <- length(cent)
-           X <- matrix(0, nrow = ncent, ncol = howmany, 
-                       dimnames=list(as.character(seq(1,ncent)),
-                       as.character(seq(1,howmany))))
-     dimnames(X)[[1]] <- as.character(cent)
-     dimnames(X)[[2]] <-  paste(substr(as.character(g.in[1:howmany,1]),1,7),"to",
-                                substr(as.character(g.in[1:howmany,2]),1,7))
-        var1 <- ceiling(howmany/2)
-         
-       #   op <- par(mfrow=c(var1,2),  col.axis="blue4", col.main="blue4", 
-       #              col.lab="blue4",  col="darkgreen", bg="beige", ... )#
-        if (howmany==2)
-           layout(matrix(c(0,1,1,1,1,1,1,0,0,2,2,2,2,2,2,0), 8, 2))
-        else if (howmany==3)
-           layout(matrix(c(1,1,1,1,0,0,0,0,1,1,1,1,3,3,3,3,2,2,2,2,3,3,3,3,2,2,2,2,0,0,0,0), 8, 4))
-        else if (howmany==4)
-        layout(matrix(c(1,1,1,1,3,3,3,3,1,1,1,1,3,3,3,3,2,2,2,2,4,4,4,4,2,2,2,2,4,4,4,4), 8, 4))
-        else {
-           op <- par(mfrow=c(var1,2))#
-             }   
-       oxvar <- xvar[order(xvar)]
-       oyvar <- obj$y[order(xvar)] 
-   for (i in 1:howmany)
-       {
-          if(i==howmany) 
-            {   ##### Include points at the end of the last interval HB
-              yvar1 <- subset(oyvar, oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
-              xvar1 <- subset(oxvar, oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
-                mu1 <- subset(obj$mu.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
-             sigma1 <- subset(obj$sigma.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
-                nu1 <- subset(obj$nu.fv[order(xvar)], oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
-               tau1 <- subset(obj$tau.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
-            }
-          else
-            {
-              yvar1 <- subset(oyvar, oxvar>=g.in[i,1]&oxvar<g.in[i,2])
-              xvar1 <- subset(oxvar, oxvar>=g.in[i,1]&oxvar<g.in[i,2]) 
-                mu1 <- subset(obj$mu.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<g.in[i,2])
-             sigma1 <- subset(obj$sigma.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<g.in[i,2])
-                nu1 <- subset(obj$nu.fv[order(xvar)], oxvar>=g.in[i,1]&oxvar<g.in[i,2])
-               tau1 <- subset(obj$tau.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<g.in[i,2])
-          }   
-              xlim1 <- c(g.in[i,1], g.in[i,2])
-              ylim1 <- if (is.null(ylim)) range(yvar1)
-                       else ylim      
-              xleg  <- min(xvar1) 
-              yleg  <- max(yvar1) 
-               obj1 <- obj
-             obj1$y <- yvar1
-         obj1$mu.fv <- mu1
-      obj1$sigma.fv <- sigma1
-         obj1$nu.fv <- nu1
-        obj1$tau.fv <- tau1
-              main1 <- main[i]
-          sampleval <- centiles(obj1, xvar1, cent, legend=legend, main=main1, main.gsub = main.gsub, 
-                           ylab, xlab ,xleg ,yleg, xlim=xlim1, ylim=ylim1, 
-                           save=TRUE, plot=plot, ...)
-              X[,i] <- sampleval[,2] 
-         }
-      if (howmany>4) par(op)
-      layout(mat=1)             
-if (save) { return(X)}
-}      
+# centiles.split<- function(obj, 
+#                         xvar = NULL, 
+#                  xcut.points = NULL, 
+#                      n.inter = 4 , 
+#                         cent = c(.4,2,10,25,50,75,90,98,99.6), 
+#                       legend = FALSE, 
+#                         main = NULL,
+#                    main.gsub = "@",   
+#                         ylab = "y",
+#                         xlab = "x",
+#                         ylim = NULL, # ms Friday, February 6, 2004 at 19:40
+#                      overlap = 0, 
+#                         save = TRUE,
+#                         plot = TRUE,
+#                         ...
+#                         )
+# {
+# # function 1 -------------------------
+#   check.overlap <- function(interval)
+#   {
+#     if (!is.matrix(interval) ) {stop(paste("The interval specified is not a matrix."))}
+#     if (dim(interval)[2] !=2) 
+#      {
+# stop(paste("The interval specified is not a valid matrix.\nThe number of columns should be equal to 2."))
+#      }
+#     crows = dim(interval)[1]
+#     for (i in 1:(crows-1))
+#     {
+#         #if (interval[i,2] != interval[i+1,1]) {interval[i+1,1]=interval[i,2]}
+#         if (!(abs(interval[i,2]-interval[i+1,1])<0.0001)) {interval[i+1,1]=interval[i,2]}
+#     }
+#     return(interval)
+#   }
+# #------------------------------------------
+# # function 2 
+#   get.intervals <- function (xvar, xcut.points ) 
+# {
+#     if (!is.vector(xcut.points))  {stop(paste("The interval is not a vector."))}
+#     if ( any((xcut.points < min(xvar)) | any(xcut.points > max(xvar))))
+#         {stop(paste("The specified `xcut.points' are not within the range of the x: (", min(xvar),
+#         " , ", max(xvar), ")"))}
+#     int <- c(min(xvar), xcut.points, max(xvar))
+#      ii <- 1:(length(int)-1)
+#       r <- 2:length(int)
+#      x1 <- int[ii]
+#      xr <- int[r]
+#      if (any(x1>xr)) {stop(paste("The interval is are not in a increasing order."))}
+#     cbind(x1,xr)
+# }
+# #------------------------------------------
+# # the main function starts here
+# #------------------------------------------
+#     if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
+#     if(is.null(xvar)) 
+#       { xvar <- seq(1,length(obj$y),1)
+#         warning(paste("The xvar has been replace by an index 1:n", "\n", ""))  
+#       }    # do we need this for centiles()            
+#     if(is.null(xcut.points)) 
+#       { # getting the intervals automatic
+#       g.in <- co.intervals(xvar, number=n.inter, overlap=overlap )
+#       if (overlap==0) g.in <- check.overlap(g.in) 
+#       }                 
+#     else
+#       { # if xcut.points is set
+#       g.in <- get.intervals(xvar, xcut.points ) 
+#       }
+#       howmany <- dim(g.in)[1]
+#        fname <- obj$family[1]
+#         qfun <- paste("q",fname,sep="")
+#        Title <-vector(length = howmany)
+#        for (i in 1:howmany)  Title[i] <- paste("(",paste(g.in[i,1],g.in[i,2], sep=", "), ")" )  
+#        if (is.null(main)) main <- Title
+#        else for (i in 1:howmany) main[i] <-gsub(main.gsub,Title[i],main[i])         
+#              #  if (is.null(main)) 
+#              #      {#rep(paste("Centile curves using", fname, sep=" "),howmany )
+#              #       main<-vector(length = howmany)
+#              #       for (i in 1:howmany)  main[i] <- paste("(",paste(g.in[i,1],g.in[i,2], sep=", "), ")" )
+#              #      }               
+#              #  else main #gsub(main.gsub,Title,main)    
+#         if (length(main)!=howmany) rep(main, lenght=howmany) 
+#        ncent <- length(cent)
+#            X <- matrix(0, nrow = ncent, ncol = howmany, 
+#                        dimnames=list(as.character(seq(1,ncent)),
+#                        as.character(seq(1,howmany))))
+#      dimnames(X)[[1]] <- as.character(cent)
+#      dimnames(X)[[2]] <-  paste(substr(as.character(g.in[1:howmany,1]),1,7),"to",
+#                                 substr(as.character(g.in[1:howmany,2]),1,7))
+#         var1 <- ceiling(howmany/2)
+#          
+#        #   op <- par(mfrow=c(var1,2),  col.axis="blue4", col.main="blue4", 
+#        #              col.lab="blue4",  col="darkgreen", bg="beige", ... )#
+#         if (howmany==2)
+#            layout(matrix(c(0,1,1,1,1,1,1,0,0,2,2,2,2,2,2,0), 8, 2))
+#         else if (howmany==3)
+#            layout(matrix(c(1,1,1,1,0,0,0,0,1,1,1,1,3,3,3,3,2,2,2,2,3,3,3,3,2,2,2,2,0,0,0,0), 8, 4))
+#         else if (howmany==4)
+#         layout(matrix(c(1,1,1,1,3,3,3,3,1,1,1,1,3,3,3,3,2,2,2,2,4,4,4,4,2,2,2,2,4,4,4,4), 8, 4))
+#         else {
+#            op <- par(mfrow=c(var1,2))#
+#              }   
+#        oxvar <- xvar[order(xvar)]
+#        oyvar <- obj$y[order(xvar)] 
+#    for (i in 1:howmany)
+#        {
+#           if(i==howmany) 
+#             {   ##### Include points at the end of the last interval HB
+#               yvar1 <- subset(oyvar, oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
+#               xvar1 <- subset(oxvar, oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
+#                 mu1 <- subset(obj$mu.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
+#              sigma1 <- subset(obj$sigma.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
+#                 nu1 <- subset(obj$nu.fv[order(xvar)], oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
+#                tau1 <- subset(obj$tau.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<=g.in[i,2])
+#             }
+#           else
+#             {
+#               yvar1 <- subset(oyvar, oxvar>=g.in[i,1]&oxvar<g.in[i,2])
+#               xvar1 <- subset(oxvar, oxvar>=g.in[i,1]&oxvar<g.in[i,2]) 
+#                 mu1 <- subset(obj$mu.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<g.in[i,2])
+#              sigma1 <- subset(obj$sigma.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<g.in[i,2])
+#                 nu1 <- subset(obj$nu.fv[order(xvar)], oxvar>=g.in[i,1]&oxvar<g.in[i,2])
+#                tau1 <- subset(obj$tau.fv[order(xvar)],oxvar>=g.in[i,1]&oxvar<g.in[i,2])
+#           }   
+#               xlim1 <- c(g.in[i,1], g.in[i,2])
+#               ylim1 <- if (is.null(ylim)) range(yvar1)
+#                        else ylim      
+#               xleg  <- min(xvar1) 
+#               yleg  <- max(yvar1) 
+#                obj1 <- obj
+#              obj1$y <- yvar1
+#          obj1$mu.fv <- mu1
+#       obj1$sigma.fv <- sigma1
+#          obj1$nu.fv <- nu1
+#         obj1$tau.fv <- tau1
+#               main1 <- main[i]
+#           sampleval <- centiles(obj1, xvar1, cent, legend=legend, main=main1, main.gsub = main.gsub, 
+#                            ylab, xlab ,xleg ,yleg, xlim=xlim1, ylim=ylim1, 
+#                            save=TRUE, plot=plot, ...)
+#               X[,i] <- sampleval[,2] 
+#          }
+#       if (howmany>4) par(op)
+#       layout(mat=1)             
+# if (save) { return(X)}
+# }      

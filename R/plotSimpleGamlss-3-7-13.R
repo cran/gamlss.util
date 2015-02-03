@@ -20,7 +20,6 @@ plotSimpleGamlss <- function(y,
 #                         xlab = paste(deparse(substitute(x))),
                              ...)
 {
-  require(gamlss.util)
      args <- list(...)
   if (is.null(data)) stop("the data argument is required")  
   ## has to change
@@ -52,14 +51,14 @@ plotSimpleGamlss <- function(y,
       pdf <- eval(parse(text=dfun))
        xv <- x.val #xv <- c(0.1,5,10,15,20)
       ran <- xlim
-    with(data, scattersmooth(x,y, ylim=ylim, xlim=xlim, xlab=xlab, ylab=ylab))
+    with(data, scattersmooth(x,y, ylim=ylim, xlim=xlim, xlab=xlab, ylab=ylab, ...))
 #get formula for gamlss
 # whether to fit the model if not given
 if (!is.null(model))
 {
   lines(fitted(model)[order(x)]~x[order(x)],  type="l", col="black") 
   NewData <- eval(parse(text=paste(paste("data.frame(", paste(xlab,"=x.val", sep="")),")")))
-        p <- predictAll(model, , newdata=NewData,  type="response")
+        p <- predictAll(model, , newdata=NewData,  type="response", data=data)
 }
 else
 {
@@ -68,7 +67,7 @@ else
     if (!is.null(data) ) m1$call$data <- substitute(data)
      lines(fitted(m1)[order(x)]~x[order(x)],  type="l", col="black")
   NewData <- eval(parse(text=paste(paste("data.frame(", paste(xlab,"=x.val", sep="")),")")))
-        p <- predictAll(m1, , newdata=NewData,  type="response")
+        p <- predictAll(m1, , newdata=NewData,  type="response", data=data)
 }  
 
  

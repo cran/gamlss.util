@@ -22,28 +22,30 @@
 #15) wp()
 # 16) fixed parameters
 #source("/Users/stasinom/Documents/gamlss/projects/TIME-SERIES/createLags.R")
-#---------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------
-require(gamlss)
-#---------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#require(gamlss)
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 garmaFit <- function(formula = formula(data), 
-		               order = c(0,0),
-		             weights = NULL,
-	                    data = sys.parent(),
-	                  family = NO(),  ##  declaring the family ##
-		               alpha = 0.1,
-				   phi.start = NULL,
-				 theta.start = NULL, 
-			            tail = max(order),
-		           control = list())
+		                   order = c(0,0),
+		                 weights = NULL,
+	                      data = sys.parent(),
+	                    family = NO(),  ##  declaring the family ##
+		                   alpha = 0.1,
+				           phi.start = NULL,
+				         theta.start = NULL, 
+			                  tail = max(order),
+		                 control = list())
 {
-#---------------------------------------------------
+#-------------------------------------------------------------------------------
 # local functions
 # i)   rqres
 # ii)  hessian not needed anymore 
-# iii) garmaLL
-#--------------------------------------------------------------------------------------
+# iii) createLags
+# iv)  garmaLL
+#-------------------------------------------------------------------------------
+# (i)
 # this is to replicate rqres within gamlss enviroment DS Friday, March 31, 2006 at 10:30
 # it is used as in gamlss()
 	rqres <- function (pfun = "pNO", 
@@ -56,10 +58,11 @@ garmaFit <- function(formula = formula(data),
 			... )
 	{ }
 	body(rqres) <-  eval(quote(body(rqres)), envir = getNamespace("gamlss"))
-##---------------------------------------------------------------------------------------
-##---------------------------------------------------------------------------------------
-# the hessian	
-#---------
+##------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
+# the hessian
+#  (ii)
+#-------------------------------------------------------------------------------
 	hessian<-function(par)
 	{
 		npar <- length(par)
@@ -79,8 +82,39 @@ garmaFit <- function(formula = formula(data),
 		}
 		Hessian
 	}
-##---------	
-#----------
+##------------------------------------------------------------------------------
+# (iii)
+##------------------------------------------------------------------------------
+createLags <- function(y,lag=1, omit.na=FALSE)
+{
+  ## local function   
+  lag1 <- function(y)
+  {
+    l <- c(NA, y[1:(length(y)-1)])
+    l
+  }
+  ## main function starts here
+  d <- matrix(0, nrow=length(y), ncol=lag)
+  d[,1] <- lag1(y)
+  yname <- deparse(substitute(y))
+  cname <- paste("lag1", yname, sep="")
+  if (lag==1) 
+  {names(d[,1]) <- c("lag1")
+   if (omit.na) d <-na.omit(d)
+   return(d)
+  }
+  for(i in 2:lag) 
+  {
+    d[,i] <- lag1(d[,i - 1])
+    cname <- c(cname, paste("lag", paste(yname,i, sep=""), sep=""))
+  }
+  colnames(d ) <- cname
+  if (omit.na) d <-na.omit(d)
+  d
+}
+#-------------------------------------------------------------------------------
+# (iv)
+##------------------------------------------------------------------------------
 	garmaLL <- function(parm,  save=FALSE) 
 	{	
 		           beta <- parm[1:l.beta]	
@@ -107,17 +141,11 @@ garmaFit <- function(formula = formula(data),
 					    some <- Xb+g2ylag%*%theta
 					    some <- ifelse(is.na(some),0,some) 
 					     eta <- filter(some, -theta, "r", init =rep(0,order[2]))
-	#				   eta <- try(filter(some, -theta, "r", init =rep(0,order[2])))
-	#				   if (any(class(eta)%in%"try-error"))
-    #             { 
-    #               browser()
-    #
-    #             } 
 					    mu <- ifelse(is.na(eta), alpha, fam$mu.linkinv(eta)) 	
 				},
 				{ # case 3
 					#print(parm)
-					#ƒif(any(is.na(parm))) browser()
+					#if(any(is.na(parm))) browser()
 				  	  start <- l.beta + 1
 			  		finish1 <- start + (order[1]-1)
 			  		finish2 <- finish1+1+ (order[2]-1)
@@ -142,8 +170,9 @@ garmaFit <- function(formula = formula(data),
 		       )
 			   switch(nopar, ##  this is where swiches between different family with different distributions ##
 					   {# one parameter 
-						   llh <- -sum(w*PDF(y, mu=mu,  log=TRUE), na.rm = TRUE)
-					   },
+						   llh <- if (BItrue) -sum(w*PDF(y, mu=mu, bd=bd, log=TRUE), na.rm = TRUE)
+                      else -sum(w*PDF(y, mu=mu,  log=TRUE), na.rm = TRUE)
+					   }, 
 					   {# two  parameters 
 						 sigma <- parm[finish] 
 						   llh <-  -sum(w*PDF(y, mu=mu, sigma=sigma, log=TRUE), na.rm = TRUE)
@@ -159,69 +188,90 @@ garmaFit <- function(formula = formula(data),
 						    nu <- parm[finish+1]
 						   tau <-parm[finish+2]
 						   llh <-  -sum(w*PDF(y, mu=mu, sigma=sigma, nu=nu, tau=tau, log=TRUE),  na.rm = TRUE)
+             
 					   }
 			         )
 		if (save) return(list(lik=llh, mu=mu))
 	    #if(is.na(llh)) browser()
 		llh 
 	}	
-#---------------------------------------------------------
-#---------------------------------------------------------
+#-------------------------------------------------------------------------------
 # the main function starts here
+#-------------------------------------------------------------------------------
 	garmacall <- match.call()  #   the function call
-## which case of garma?
-##  order=c(0,0)     case 0
-##  order=c(>=,0)    case 1
-##  order=c(0,>0)    case 2
-##  order=c(>0,>0)   case 3
-      if (order[1]<=0&&order[2]<=0)  case <- 0 
-      if (order[1]> 0&&order[2]<=0)  case <- 1 
+    if (order[1]<=0&&order[2]<=0)  case <- 0 
+    if (order[1]> 0&&order[2]<=0)  case <- 1 
 	  if (order[1]<=0&&order[2] >0)  case <- 2	
 	  if (order[1]> 0&&order[2] >0)  case <- 3
 ## starting values for beta
 ## fitting a gamlss model
 ## possibly with weights ????? YES but we need length(y) here 
-     m0 <- gamlss(formula, family=family, data=data, trace=FALSE) #with(data, gamlss(y ~ x2 + x3 + x4 + x5, family=family,  trace=FALSE)
+     m0 <- gamlss(formula, family=family, data=data, trace=FALSE) #
      cat("deviance of linear model= ", deviance(m0),"\n")
      if (case==0) return(m0) # stop if case 0
 # get the initial betas
        beta <- coef(m0)
    # here we need the se of  coef so we can create lower and upper bounds???
-   #se.coef <-  c(0.09662, 0.13091, 0.13968, 0.13302, 0.13437) 
-   #se.coef <- vcov(m0, "se") NEEDS ATTENTION
-	 l.beta <- length(beta)
-	#beta.se <- [1:l.beta]
-          y <- m0$y # 
-	      X <- m0$mu.x # the X matrix
-	    fam <- as.gamlss.family(family)
+   #  se.coef <- c(0.09662, 0.13091, 0.13968, 0.13302, 0.13437) 
+   #  se.coef <- vcov(m0, "se") NEEDS ATTENTION
+	   l.beta <- length(beta)
+	 #  beta.se <- [1:l.beta]
+          y <- m0$y # n
+	        X <- m0$mu.x # the X matrix
+	      fam <- as.gamlss.family(family)
+      nopar <- fam$nopar
+          N <- length(y)
+## extracting now the y and the binomial denominator in case we use BI or BB
+if(any(fam$family%in%gamlss::.gamlss.bi.list)) 
+{ BItrue <- TRUE
+      bd <- m0$bd 
+}  
+#   if (NCOL(y) == 1) # binary
+#   {
+#     y <- if (is.factor(y))  y != levels(y)[1] else y
+#     bd <- rep(1, N)
+#     if (any(y < 0 | y > 1)) stop("y values must be 0 <= y <= 1")
+#   } 
+#   else if (NCOL(y) == 2) 
+#   {
+#     if (any(abs(y - round(y)) > 0.001)) 
+#     {
+#       warning("non-integer counts in a binomial GAMLSS!")
+#     }
+#     bd <- y[,1] + y[,2]
+#     y <-  y[,1]
+#     if (any(y < 0 | y > bd)) stop("y values must be 0 <= y <= N") # MS Monday, October 17, 2005 
+#   } 
+#   else stop(paste("For the binomial family, y must be", 
+#                   "a vector of 0 and 1's or a 2 column", "matrix where col 1 is no. successes", 
+#                   "and col 2 is no. failures"))
+# }
 	#if (!is.null(data)) {attach(data); on.exit(detach(data))}
    ##  the next 6 lines are needed for the  family ##
       fname <- fam$family[[1]] 
        dfun <- paste("d",fname,sep="")
        pfun <- paste("p",fname,sep="")
-	    PDF <- eval(parse(text=dfun))
-	    CDF <- eval(parse(text=pfun))
-      nopar <- fam$nopar
-     	  N <- length(y)
+	      PDF <- eval(parse(text=dfun))
+	      CDF <- eval(parse(text=pfun))
 	# depending on the link function
 	# I am not sure I cover all possibilities what about own???
 	# also the logit needs testing ?????
 	     if (fam$mu.link=="identity") ystar <- y 
 	     if (fam$mu.link=="log")      ystar <- pmax(y,alpha)
-	     if (fam$mu.link=="logit")    ystar <- ifelse(y==0, alpha, ifelse( y==1, 1-alpha, y) )
+	     if (fam$mu.link=="logit")    ystar <- pmin(pmax(y, alpha), bd-alpha)/bd# ifelse(y==0, alpha, ifelse( y==1, 1-alpha, y) )
 	     if (fam$mu.link=="inverse")  ystar <- y
-	    g2y <- fam$mu.linkfun(ystar) 
+	     g2y <- fam$mu.linkfun(ystar) 
 	# I will need here ar and ma 
     tailoff <- max(order)
-	  mtail <- max(tailoff, tail)
-	      w <- if(is.null(weights))    rep(1, N) else weights
+	    mtail <- max(tailoff, tail)
+	        w <- if(is.null(weights))    rep(1, N) else weights
 	          if(any(w < 0)) stop("negative weights not allowed") # 
  w[1:mtail] <- 0	# weight out the tail  
 # get the initial values if are not set by the user
 ##  you will need  something like this for the general family probably you need for nu and tau only##
 	if ("mu"%in%names(fam$parameters))
 	{
-		params <- c(beta = beta) 
+    		params <- c(beta = beta) 
    lowerBounds <- c(beta = rep(-Inf, l.beta)) # those bounds need checking ???
    upperBounds <- c(beta = rep( Inf, l.beta))
 		 switch(case, 
