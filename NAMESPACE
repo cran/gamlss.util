@@ -8,10 +8,15 @@ export(scattersmooth, plotSimpleGamlss,
 importFrom(gamlss, gamlss, .gamlss.bi.list, is.gamlss, predictAll)
 importFrom(gamlss.dist, as.gamlss.family, NO, dNO, qNO, pNO)
 import(zoo)
+import(stats)
 #importFrom(spam)
 #importFrom(genoud)
 
-importFrom(stats, knots, coef, fitted, predict, residuals)
+importFrom(grDevices, gray, heat.colors)
+importFrom(graphics, box, image, legend, lines, par, plot, points, rug, title)
+importFrom(methods, is)
+
+#importFrom(stats, knots, coef, fitted, predict, residuals)
 #importFrom(Matrix, t, solve, as.vector, diag)
 
 #S3method(fitted, locW)

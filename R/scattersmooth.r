@@ -49,8 +49,8 @@ smooth2d = function (H, lambda) {
 #-------------------------------------------------------------------------------
 # main function starts here
 # check correct input
-ylab <- deparse(substitute(y))
-xlab <- deparse(substitute(x))
+xlab <- if (is.null(xlab))  deparse(substitute(x)) else xlab
+ylab <- if (is.null(ylab))  deparse(substitute(y)) else ylab
 y <- if (!is.null(data)) get(deparse(substitute(y)), envir=as.environment(data)) else y
 x <- if (!is.null(data)) get(deparse(substitute(x)), envir=as.environment(data)) else x
 # ## --------------
@@ -99,8 +99,6 @@ x <- if (!is.null(data)) get(deparse(substitute(x)), envir=as.environment(data))
     # Create and smooth the unsmoothed histogram
      Hraw <- fillhist(xbin, ybin, nbin)
   Hsmooth <- smooth2d(Hraw, lambda) 
-    if (is.null(xlab)) xlab <-   deparse(substitute(x))
-    if (is.null(ylab)) ylab <-   deparse(substitute(y))
     if (ticks == FALSE) par(xaxt = 'n', yaxt = 'n')
     if (show) 
     {
